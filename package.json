@@ -1,0 +1,33 @@
+{
+  "name": "twitter-likes-to-one-none",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "develop": "ts-node-dev --respawn src/index.ts",
+    "eslint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "typecheck": "tsc --project tsconfig.json --noEmit --skipLibCheck"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.12",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.3.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.0",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "twitter-api-v2": "^1.12.9"
+  }
+}

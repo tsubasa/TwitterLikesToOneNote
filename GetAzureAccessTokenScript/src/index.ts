@@ -4,15 +4,16 @@ import * as msal from '@azure/msal-node';
 import express from 'express';
 import 'dotenv/config';
 
-if (!process.env.MS_CLIENT_ID || !process.env.MS_CLIENT_SECRET) {
-  console.log('Please provide environment variables MS_CLIENT_ID and MS_CLIENT_SECRET for Microsoft Graph OAuth');
+if (!process.env.MS_CLIENT_ID || !process.env.MS_CLIENT_SECRET || !process.env.MS_SCOPES) {
+  console.log(
+    'Please provide environment variables MS_CLIENT_ID and MS_CLIENT_SECRET, MS_SCOPES for Microsoft Graph OAuth',
+  );
   process.exit(1);
 }
 
 const DIST_DIR = path.resolve(__dirname, '../dist');
 
-// Create MSAL application object
-const msalClient = new msal.ConfidentialClientApplication({
+const client = new msal.ConfidentialClientApplication({
   auth: {
     authority: 'https://login.microsoftonline.com/common/',
     clientId: process.env.MS_CLIENT_ID,
@@ -20,39 +21,31 @@ const msalClient = new msal.ConfidentialClientApplication({
   },
 });
 
-const SCOPES = ['User.Read', 'Notes.Create', 'Notes.Read', 'Notes.Read.All', 'Notes.ReadWrite', 'Notes.ReadWrite.All'];
+const SCOPES = process.env.MS_SCOPES.split(',').map((scope) => scope.trim());
 const PORT = 3000;
 const REDIRECT_URI = `http://localhost:${PORT}`;
 
 const app = express();
 
-// Handle OAuth redirect
 app.get('/', async (req, res) => {
   const { code } = req.query;
   if (typeof code === 'string') {
-    // MSAL client returns access token(valid for 1 hour)
-    await msalClient.acquireTokenByCode({
+    await client.acquireTokenByCode({
       code,
       redirectUri: REDIRECT_URI,
       scopes: SCOPES,
     });
 
-    // But we will prefer the refresh token that is stored in cache
-    // (valid for 90 days)
-    const tokenCache = JSON.parse(msalClient.getTokenCache().serialize());
-    const refreshTokenKey = Object.keys(tokenCache.RefreshToken)[0];
-    const refreshToken = tokenCache.RefreshToken[refreshTokenKey].secret;
-
-    // We can use the refresh token to get new access tokens during the
-    // initialization of the engine(s) that use Microsoft Graph API OAuth
-    console.log('\nRefresh token: ', refreshToken);
-    res.status(200).send('Success! Close this tab and check your terminal.');
+    res.status(200).send('Success! Close this tab and check your dist.');
 
     try {
       if (!fs.existsSync(DIST_DIR)) {
         fs.mkdirSync(DIST_DIR);
       }
-      fs.writeFileSync(`${DIST_DIR}/Credential.json`, JSON.stringify(tokenCache, null, 2));
+      fs.writeFileSync(
+        `${DIST_DIR}/Credential.json`,
+        JSON.stringify(JSON.parse(client.getTokenCache().serialize()), null, 2),
+      );
     } catch (error) {
       console.error(error);
     }
@@ -64,8 +57,7 @@ app.get('/', async (req, res) => {
 });
 
 app.listen(PORT, async () => {
-  // Generate URL for authorization page.
-  const authUrl = await msalClient.getAuthCodeUrl({
+  const authUrl = await client.getAuthCodeUrl({
     redirectUri: REDIRECT_URI,
     scopes: SCOPES,
   });
