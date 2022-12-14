@@ -13,3 +13,6 @@ yarn-error.log*
 
 # vim
 *.swp
+
+# db
+database.db

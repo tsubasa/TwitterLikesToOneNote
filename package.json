@@ -10,7 +10,8 @@
     "build": "tsc",
     "develop": "ts-node-dev --respawn src/index.ts",
     "eslint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "typecheck": "tsc --project tsconfig.json --noEmit --skipLibCheck"
+    "typecheck": "tsc --project tsconfig.json --noEmit --skipLibCheck",
+    "typeorm": "typeorm-ts-node-commonjs"
   },
   "devDependencies": {
     "@types/node": "^18.11.12",
@@ -28,6 +29,8 @@
   },
   "dependencies": {
     "dotenv": "^16.0.3",
-    "twitter-api-v2": "^1.12.9"
+    "sqlite3": "^5.1.4",
+    "twitter-api-v2": "^1.12.9",
+    "typeorm": "^0.3.11"
   }
 }
