@@ -1,0 +1,7 @@
+{
+  "twitter.clientId": "",
+  "twitter.clientSecret": "",
+  "twitter.accessToken": "",
+  "twitter.refreshToken": "",
+  "twitter.maxGetTweets": 495
+}

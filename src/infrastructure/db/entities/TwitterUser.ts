@@ -2,16 +2,16 @@ import { PrimaryColumn, Column, Entity, Index, CreateDateColumn } from 'typeorm'
 
 @Entity()
 export default class TwitterUser {
-  @PrimaryColumn({ name: 'user_id', type: 'varchar', length: 64, nullable: false })
-  userId!: string;
+  @PrimaryColumn({ name: 'id', type: 'varchar', length: 64, nullable: false })
+  id!: string;
 
   @Index()
-  @Column({ name: 'screen_name', type: 'varchar', length: 64, nullable: false })
-  screenName!: string;
+  @Column({ name: 'user_name', type: 'varchar', length: 64, nullable: false })
+  username!: string;
 
   @Index()
-  @Column({ name: 'display_name', type: 'varchar', length: 128, nullable: false })
-  displayName!: string;
+  @Column({ name: 'name', type: 'varchar', length: 128, nullable: false })
+  name!: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createdAt?: string;

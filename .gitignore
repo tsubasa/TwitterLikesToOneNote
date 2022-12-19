@@ -1,5 +1,6 @@
 # config
 .env
+config/*.json
 
 # node
 node_modules
@@ -16,3 +17,7 @@ yarn-error.log*
 
 # db
 database.db
+
+# app
+medias
+sample

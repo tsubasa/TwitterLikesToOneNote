@@ -2,8 +2,8 @@ import { PrimaryColumn, Column, Entity, Index, CreateDateColumn } from 'typeorm'
 
 @Entity()
 export default class TwitterTweet {
-  @PrimaryColumn({ name: 'tweet_id', type: 'varchar', length: 64, nullable: false })
-  tweetId!: string;
+  @PrimaryColumn({ name: 'id', type: 'varchar', length: 64, nullable: false })
+  id!: string;
 
   @Index()
   @Column({ name: 'user_id', type: 'varchar', length: 64, nullable: false })
