@@ -8,6 +8,12 @@ type AppConfig = {
   'twitter.accessToken': string;
   'twitter.refreshToken': string;
   'twitter.maxGetTweets': number;
+  'azure.authority': string;
+  'azure.clientId': string;
+  'azure.clientSecret': string;
+  'azure.accessToken': string;
+  'azure.refreshToken': string;
+  'azure.scopes': string[];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

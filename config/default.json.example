@@ -5,5 +5,20 @@
     "accessToken": "",
     "refreshToken": "",
     "maxGetTweets": 495
+  },
+  "azure": {
+    "authority": "https://login.microsoftonline.com/common/",
+    "clientId": "",
+    "clientSecret": "",
+    "accessToken": "",
+    "refreshToken": "",
+    "scopes": [
+      "User.Read",
+      "Notes.Create",
+      "Notes.Read",
+      "Notes.Read.All",
+      "Notes.ReadWrite",
+      "Notes.ReadWrite.All"
+    ]
   }
 }

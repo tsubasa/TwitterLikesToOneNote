@@ -1,6 +1,7 @@
 import readline from 'readline';
 import getTweetMediaFromTweets from './GetTweetMediaFromTweets';
 import getTweetsFromBookmark from './GetTweetsFromBookmark';
+import uploadOneNoteFromTweets from './UploadOneNoteFromTweets';
 
 const question = (questionText: string): Promise<string> => {
   const readlineInterface = readline.createInterface({
@@ -39,6 +40,8 @@ const main = async () => {
             await getTweetMediaFromTweets();
             break;
           case '3':
+            // eslint-disable-next-line no-await-in-loop
+            await uploadOneNoteFromTweets();
             break;
           case '4':
             console.log('Bye bye 👋');
