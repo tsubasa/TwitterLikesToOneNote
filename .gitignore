@@ -19,5 +19,6 @@ yarn-error.log*
 database.db
 
 # app
+logs
 medias
 sample

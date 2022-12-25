@@ -20,5 +20,8 @@
       "Notes.ReadWrite",
       "Notes.ReadWrite.All"
     ]
+  },
+  "onenote": {
+    "sectionId": ""
   }
 }

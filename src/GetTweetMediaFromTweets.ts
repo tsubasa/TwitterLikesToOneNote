@@ -4,6 +4,9 @@ import path from 'path';
 
 import DataSource from './infrastructure/db/DataSource';
 import TwitterMedia from './infrastructure/db/entities/TwitterMedia';
+import Logger from './core/Logger';
+
+const logger = new Logger(__filename);
 
 const saveDir = path.resolve(__dirname, `../medias`);
 
@@ -35,24 +38,25 @@ const getTweetMediaFromTweets = async () => {
 
     // eslint-disable-next-line no-restricted-syntax
     for (const record of records) {
-      const filePath = `${saveDir}/${record.id}${path.extname(record.url)}`;
+      const url = record.type === 'photo' ? new URL('?format=png&name=large', record.url).href : record.url;
+      const filePath = `${saveDir}/${record.id}${record.type === 'photo' ? '.png' : path.extname(record.url)}`;
       if (!fs.existsSync(filePath)) {
         try {
           // eslint-disable-next-line no-await-in-loop
-          await download(record.url, filePath);
-          console.log('downloaded:', record.url);
+          await download(url, filePath);
+          logger.info('downloaded:', url);
           // eslint-disable-next-line no-await-in-loop
           await sleep();
         } catch (e) {
-          console.error('download error:', record.url);
-          console.error(e);
+          logger.error('download error:', url);
+          logger.error(e);
         }
       } else {
-        console.log('skip:', record.url);
+        logger.info('skip:', url);
       }
     }
 
-    console.log('Downloaded media.');
+    logger.debug('Downloaded media.');
   } finally {
     if (DataSource.isInitialized) await DataSource.destroy();
   }

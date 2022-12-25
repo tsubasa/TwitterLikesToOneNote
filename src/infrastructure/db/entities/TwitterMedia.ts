@@ -11,7 +11,7 @@ export default class TwitterMedia {
 
   @Index()
   @Column({ name: 'type', type: 'varchar', length: 16, nullable: false })
-  type!: string;
+  type!: 'photo' | 'animated_gif' | 'video';
 
   @Column({ name: 'url', type: 'text', nullable: false })
   url!: string;

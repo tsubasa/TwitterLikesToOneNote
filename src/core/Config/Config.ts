@@ -14,6 +14,7 @@ type AppConfig = {
   'azure.accessToken': string;
   'azure.refreshToken': string;
   'azure.scopes': string[];
+  'onenote.sectionId': string;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

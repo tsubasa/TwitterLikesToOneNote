@@ -5,6 +5,9 @@ import TwitterTweet from './infrastructure/db/entities/TwitterTweet';
 import TwitterMedia from './infrastructure/db/entities/TwitterMedia';
 import TwitterUser from './infrastructure/db/entities/TwitterUser';
 import Config from './core/Config';
+import Logger from './core/Logger';
+
+const logger = new Logger(__filename);
 
 // type TweetMedia =
 //   | {
@@ -43,6 +46,13 @@ import Config from './core/Config';
 
 const TWITTER_MAX_GET_BOOKMARK_TWEETS = Config.get('twitter.maxGetTweets') ?? 495;
 
+const isAllowMedia = (type: string): type is 'photo' | 'video' | 'animated_gif' => {
+  if (type === 'photo') return true;
+  if (type === 'video') return true;
+  if (type === 'animated_gif') return true;
+  throw new TypeError(`Unsupported media type: ${type}`);
+};
+
 const getNewTwitterClient = async () => {
   const twitterAPI = new TwitterApi({
     clientId: Config.get('twitter.clientId'),
@@ -56,11 +66,11 @@ const getNewTwitterClient = async () => {
   } = await twitterAPI.refreshOAuth2Token(Config.get('twitter.refreshToken'));
 
   Config.set('twitter.accessToken', accessToken);
-  console.log('New Access Token:', accessToken);
+  logger.debug('New Access Token:', accessToken);
 
   if (refreshToken) {
     Config.set('twitter.refreshToken', refreshToken);
-    console.log('New Refresh Token:', refreshToken);
+    logger.debug('New Refresh Token:', refreshToken);
   }
 
   return twitterClient;
@@ -75,7 +85,7 @@ const getTweetsFromBookmark = async () => {
     } catch (e) {
       if (e instanceof ApiResponseError) {
         if (e.code === 401) {
-          console.log('getNewAccessToken');
+          logger.debug('getNewAccessToken');
           twitterClient = await getNewTwitterClient();
         } else {
           throw e;
@@ -108,14 +118,20 @@ const getTweetsFromBookmark = async () => {
           // eslint-disable-next-line no-restricted-syntax
           for (const mediaId of tweet.attachments.media_keys) {
             const media = data?.includes?.media?.find((v) => v.media_key === mediaId);
-            if (media) {
-              // eslint-disable-next-line no-await-in-loop
-              await mediaRepository.save({
-                id: media.media_key,
-                tweetId: tweet.id,
-                type: media.type,
-                url: media.type === 'photo' ? media.url : _.maxBy(media.variants, 'bit_rate')?.url?.split('?').shift(),
-              });
+
+            try {
+              if (media && isAllowMedia(media.type)) {
+                // eslint-disable-next-line no-await-in-loop
+                await mediaRepository.save({
+                  id: media.media_key,
+                  tweetId: tweet.id,
+                  type: media.type,
+                  url:
+                    media.type === 'photo' ? media.url : _.maxBy(media.variants, 'bit_rate')?.url?.split('?').shift(),
+                });
+              }
+            } catch (e) {
+              logger.error(e);
             }
           }
         }
@@ -152,7 +168,7 @@ const getTweetsFromBookmark = async () => {
     // eslint-disable-next-line no-await-in-loop
     await saveTweets(bookmarks.data);
 
-    console.log(`Saved ${bookmarks.data.data.length} tweets.`);
+    logger.debug(`Saved ${bookmarks.data.data.length} tweets.`);
   } finally {
     if (DataSource.isInitialized) await DataSource.destroy();
   }

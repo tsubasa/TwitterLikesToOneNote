@@ -2,6 +2,9 @@ import readline from 'readline';
 import getTweetMediaFromTweets from './GetTweetMediaFromTweets';
 import getTweetsFromBookmark from './GetTweetsFromBookmark';
 import uploadOneNoteFromTweets from './UploadOneNoteFromTweets';
+import Logger from './core/Logger';
+
+const logger = new Logger('app');
 
 const question = (questionText: string): Promise<string> => {
   const readlineInterface = readline.createInterface({
@@ -17,7 +20,7 @@ const question = (questionText: string): Promise<string> => {
 };
 
 const prompt = async (msg: string) => {
-  console.log(msg);
+  process.stdout.write(`${msg}\n`);
   const answer = await question('> ');
   return answer.trim();
 };
@@ -44,17 +47,17 @@ const main = async () => {
             await uploadOneNoteFromTweets();
             break;
           case '4':
-            console.log('Bye bye 👋');
+            process.stdout.write('Bye bye 👋');
             process.exit(0);
             break;
           default:
             break;
         }
       } catch (e) {
-        console.error(e);
+        logger.error(e);
       }
     }
-    console.log(''); // 改行
+    process.stdout.write(''); // 改行
   }
 };
 
