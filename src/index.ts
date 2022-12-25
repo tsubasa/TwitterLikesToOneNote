@@ -57,7 +57,7 @@ const main = async () => {
         logger.error(e);
       }
     }
-    process.stdout.write(''); // 改行
+    process.stdout.write('\n'); // 改行
   }
 };
 

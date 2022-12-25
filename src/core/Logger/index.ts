@@ -2,7 +2,7 @@
 
 import path from 'path';
 import * as winston from 'winston';
-import 'dotenv';
+import 'dotenv/config';
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
@@ -12,12 +12,12 @@ export default class Logger {
   private level: string;
 
   constructor(name: string, level?: LogLevel) {
-    this.level = level ?? process.env.LOG_LEVEL ?? 'warn';
+    this.level = String(level ?? process.env.LOG_LEVEL ?? 'warn').toLowerCase();
 
     this.logger = winston.createLogger({
-      level,
       transports: [
         new winston.transports.Console({
+          level: this.level,
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.printf((info) => {
@@ -28,6 +28,7 @@ export default class Logger {
           ),
         }),
         new winston.transports.File({
+          level: 'error',
           dirname: path.resolve(__dirname, '../../../logs'),
           filename: `${name}.log`,
           format: winston.format.combine(
