@@ -57,6 +57,8 @@ const getTweetMediaFromTweets = async () => {
     }
 
     logger.debug('Downloaded media.');
+  } catch (e) {
+    logger.error(e);
   } finally {
     if (DataSource.isInitialized) await DataSource.destroy();
   }

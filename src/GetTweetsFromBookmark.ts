@@ -156,9 +156,11 @@ const getTweetsFromBookmark = async () => {
 
     let isDone = false;
 
-    while (!bookmarks.done || isDone) {
+    while (!bookmarks.done && !isDone) {
       // eslint-disable-next-line no-await-in-loop
       bookmarks = await bookmarks.fetchNext();
+
+      logger.debug('Current Get', bookmarks.data.data.length, 'tweets.');
 
       if (bookmarks.data.data.length >= TWITTER_MAX_GET_BOOKMARK_TWEETS) {
         isDone = true;
@@ -169,6 +171,8 @@ const getTweetsFromBookmark = async () => {
     await saveTweets(bookmarks.data);
 
     logger.debug(`Saved ${bookmarks.data.data.length} tweets.`);
+  } catch (e) {
+    logger.error(e);
   } finally {
     if (DataSource.isInitialized) await DataSource.destroy();
   }

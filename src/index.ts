@@ -19,8 +19,8 @@ const question = (questionText: string): Promise<string> => {
   });
 };
 
-const prompt = async (msg: string) => {
-  process.stdout.write(`${msg}\n`);
+const prompt = async (message: string) => {
+  process.stdout.write(`${message}\n`);
   const answer = await question('> ');
   return answer.trim();
 };
