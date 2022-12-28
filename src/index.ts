@@ -27,25 +27,23 @@ const prompt = async (message: string) => {
 
 const main = async () => {
   for (;;) {
-    // eslint-disable-next-line no-await-in-loop
     const answer = await prompt(
-      'Please input run script number:\n[1] GetTweetsFromBookmark\n[2] GetTweetMediaFromTweets\n[3] SaveToOneNote\n[4] Exit',
+      'Please enter run script number:\n[1] GetTweetsFromBookmark\n[2] GetTweetMediaFromTweets\n[3] SaveToOneNote\n[4] Exit',
     );
     if (['1', '2', '3', '4'].includes(answer)) {
       try {
         switch (answer) {
           case '1':
-            // eslint-disable-next-line no-await-in-loop
             await getTweetsFromBookmark();
             break;
           case '2':
-            // eslint-disable-next-line no-await-in-loop
             await getTweetMediaFromTweets();
             break;
-          case '3':
-            // eslint-disable-next-line no-await-in-loop
-            await uploadOneNoteFromTweets();
+          case '3': {
+            const users = await prompt('Please enter multiple users by separating them with a comma (,)');
+            await uploadOneNoteFromTweets(users);
             break;
+          }
           case '4':
             process.stdout.write('Bye bye 👋');
             process.exit(0);

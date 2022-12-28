@@ -154,17 +154,15 @@ const getTweetsFromBookmark = async () => {
       'media.fields': ['url', 'preview_image_url', 'variants'],
     });
 
-    let isDone = false;
+    if (!Array.isArray(bookmarks.data.data)) {
+      logger.warn('Data is not iterable.');
+      logger.warn(JSON.stringify(bookmarks.data));
+    }
 
-    while (!bookmarks.done && !isDone) {
+    while (!bookmarks.done && bookmarks.data.data.length <= TWITTER_MAX_GET_BOOKMARK_TWEETS) {
+      logger.debug('Current Get', bookmarks.data.data.length, 'tweets.');
       // eslint-disable-next-line no-await-in-loop
       bookmarks = await bookmarks.fetchNext();
-
-      logger.debug('Current Get', bookmarks.data.data.length, 'tweets.');
-
-      if (bookmarks.data.data.length >= TWITTER_MAX_GET_BOOKMARK_TWEETS) {
-        isDone = true;
-      }
     }
 
     // eslint-disable-next-line no-await-in-loop

@@ -18,17 +18,23 @@ export default class Logger {
       transports: [
         new winston.transports.Console({
           level: 'debug',
+          handleExceptions: true,
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.printf((info) => {
+              let stackTrace = '';
+              if (typeof info.message?.stack === 'string') {
+                stackTrace = `\n[${info.timestamp}] [exception] ${info.message?.stack}`;
+              }
               return `[${info.timestamp}] [${info.level}] ${
                 typeof info.message === 'object' ? JSON.stringify(info.message, null, 2) : info.message
-              }`;
+              }${stackTrace}`;
             }),
           ),
         }),
         new winston.transports.File({
           level: this.level,
+          handleExceptions: true,
           dirname: path.resolve(__dirname, '../../../logs'),
           filename: `${name}.log`,
           format: winston.format.combine(
@@ -47,7 +53,7 @@ export default class Logger {
   }
 
   public error(message: any, ...optionalParams: any[]) {
-    if (message instanceof Error) this.logger.error('[exception]', message);
+    if (message instanceof Error) this.logger.error(message);
     else this.logger.error(this.safeMessageParser(message, optionalParams));
   }
 
@@ -65,7 +71,10 @@ export default class Logger {
 
   // eslint-disable-next-line class-methods-use-this
   private safeMessageParser(message: any, optionalParams: any[]) {
-    return [message, ...optionalParams.map((v) => String(v))].join(' ');
+    return [
+      typeof message === 'object' ? JSON.stringify(message, null, 2) : message,
+      ...optionalParams.map((v) => (typeof v === 'object' ? JSON.stringify(v, null, 2) : v)),
+    ].join(' ');
   }
 
   // eslint-disable-next-line class-methods-use-this
