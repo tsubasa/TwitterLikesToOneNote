@@ -20,6 +20,7 @@ export default class Logger {
           level: 'debug',
           handleExceptions: true,
           format: winston.format.combine(
+            winston.format.colorize(),
             winston.format.timestamp(),
             winston.format.printf((info) => {
               let stackTrace = '';
