@@ -1,10 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import util from 'util';
 import path from 'path';
 import * as winston from 'winston';
 import 'dotenv/config';
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+
+const isPrimitive = (val: unknown) => {
+  return val === null || (typeof val !== 'object' && typeof val !== 'function');
+};
+
+const formatWithInspect = (val: unknown) => {
+  const prefix = isPrimitive(val) ? '' : '\n';
+  const shouldFormat = typeof val !== 'string';
+  return prefix + (shouldFormat ? util.inspect(val, { depth: null, colors: true }) : val);
+};
 
 export default class Logger {
   private logger: winston.Logger;
@@ -13,23 +24,22 @@ export default class Logger {
 
   constructor(name: string, level?: LogLevel) {
     this.level = this.safeLogLevelParser(String(level ?? process.env.LOG_LEVEL ?? 'warn'));
-
     this.logger = winston.createLogger({
       transports: [
         new winston.transports.Console({
           level: 'debug',
           handleExceptions: true,
           format: winston.format.combine(
-            winston.format.colorize(),
             winston.format.timestamp(),
+            winston.format.errors({ stack: true }),
+            winston.format.colorize(),
             winston.format.printf((info) => {
-              let stackTrace = '';
-              if (typeof info.message?.stack === 'string') {
-                stackTrace = `\n[${info.timestamp}] [exception] ${info.message?.stack}`;
-              }
-              return `[${info.timestamp}] [${info.level}] ${
-                typeof info.message === 'object' ? JSON.stringify(info.message, null, 2) : info.message
-              }${stackTrace}`;
+              const message = formatWithInspect(info.message);
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              const splatArgs = info[Symbol.for('splat')] || [];
+              const rest = splatArgs.map((data: unknown) => formatWithInspect(data)).join(' ');
+              return `[${info.timestamp}] [${info.level}] ${message} ${rest}`;
             }),
           ),
         }),
@@ -50,32 +60,24 @@ export default class Logger {
   }
 
   public log(message: any, ...optionalParams: any[]) {
-    this.logger.log(this.level, this.safeMessageParser(message, optionalParams));
+    this.logger.log(this.level, message, ...optionalParams);
   }
 
   public error(message: any, ...optionalParams: any[]) {
-    if (message instanceof Error) this.logger.error(message);
-    else this.logger.error(this.safeMessageParser(message, optionalParams));
+    if (message instanceof Error) this.logger.error('[exception]', ...[message].concat(optionalParams));
+    else this.logger.error(message, ...optionalParams);
   }
 
   public warn(message: any, ...optionalParams: any[]) {
-    this.logger.warn(this.safeMessageParser(message, optionalParams));
+    this.logger.warn(message, ...optionalParams);
   }
 
   public info(message: any, ...optionalParams: any[]) {
-    this.logger.info(this.safeMessageParser(message, optionalParams));
+    this.logger.info(message, ...optionalParams);
   }
 
   public debug(message: any, ...optionalParams: any[]) {
-    this.logger.debug(this.safeMessageParser(message, optionalParams));
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  private safeMessageParser(message: any, optionalParams: any[]) {
-    return [
-      typeof message === 'object' ? JSON.stringify(message, null, 2) : message,
-      ...optionalParams.map((v) => (typeof v === 'object' ? JSON.stringify(v, null, 2) : v)),
-    ].join(' ');
+    this.logger.debug(message, ...optionalParams);
   }
 
   // eslint-disable-next-line class-methods-use-this
