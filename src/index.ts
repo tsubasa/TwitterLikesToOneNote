@@ -1,7 +1,8 @@
 import readline from 'readline';
-import getTweetMediaFromTweets from './GetTweetMediaFromTweets';
-import getTweetsFromBookmark from './GetTweetsFromBookmark';
-import uploadOneNoteFromTweets from './UploadOneNoteFromTweets';
+import GetTweetMediaFromTweets from './GetTweetMediaFromTweets';
+import GetTweetsFromBookmark from './GetTweetsFromBookmark';
+import GetOneNoteSectionId from './GetOneNoteSectionId';
+import UploadOneNoteFromTweets from './UploadOneNoteFromTweets';
 import Logger from './core/Logger';
 
 const logger = new Logger('app');
@@ -28,23 +29,26 @@ const prompt = async (message: string) => {
 const main = async () => {
   for (;;) {
     const answer = await prompt(
-      'Please enter run script number:\n[1] GetTweetsFromBookmark\n[2] GetTweetMediaFromTweets\n[3] SaveToOneNote\n[4] Exit',
+      'Please enter run script number:\n[1] GetTweetsFromBookmark\n[2] GetTweetMediaFromTweets\n[3] GetOneNoteSectionId\n[4] SaveToOneNote\n[5] Exit',
     );
-    if (['1', '2', '3', '4'].includes(answer)) {
+    if (['1', '2', '3', '4', '5'].includes(answer)) {
       try {
         switch (answer) {
           case '1':
-            await getTweetsFromBookmark();
+            await GetTweetsFromBookmark();
             break;
           case '2':
-            await getTweetMediaFromTweets();
+            await GetTweetMediaFromTweets();
             break;
-          case '3': {
+          case '3':
+            await GetOneNoteSectionId();
+            break;
+          case '4': {
             const users = await prompt('Please enter multiple users by separating them with a comma (,)');
-            await uploadOneNoteFromTweets(users);
+            await UploadOneNoteFromTweets(users);
             break;
           }
-          case '4':
+          case '5':
             process.stdout.write('Bye bye 👋');
             process.exit(0);
             break;
